@@ -194,7 +194,7 @@ class Critic2Caller:
             input_script += ["load int.CHGCAR id chg_int", "integrable chg_int"]
             if zpsp:
                 zpsp_str = " zpsp " + " ".join([f"{symbol} {zval}" for symbol, zval in zpsp.items()])
-                input_script[-2] += zpsp_str
+                input_script += [zpsp_str]
 
         # Command to run automatic analysis
         auto = "auto "
@@ -387,7 +387,7 @@ class CriticalPoint(MSONable):
         self.multiplicity = multiplicity
         self.field = field
         self.field_gradient = field_gradient
-        self.field_hessian = field_hessian
+        self.field_hessian = np.array(field_hessian).reshape([3,3]) 
 
     @property
     def type(self):
@@ -654,7 +654,7 @@ class Critic2Analysis(MSONable):
                 coords=[x * bohr_to_angstrom for x in p["cartesian_coordinates"]]
                 if cpreport["units"] == "bohr"
                 else None,
-                field_hessian=p["hessian"],
+                field_hessian= np.array(p["hessian"]).reshape([3,3]),
             )
             for p in cpreport["critical_points"]["nonequivalent_cps"]
         ]
@@ -837,7 +837,7 @@ class Critic2Analysis(MSONable):
                     [l2[0], l2[1], l2[2]],
                     [l3[0], l3[1], l3[2]],
                 ]
-                unique_critical_points[unique_idx].field_hessian = hessian
+                unique_critical_points[unique_idx].field_hessian = np.array(hessian).reshape([3,3])
 
         self.critical_points = unique_critical_points
 
